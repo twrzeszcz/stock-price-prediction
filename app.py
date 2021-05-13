@@ -133,7 +133,7 @@ def live_prediction():
         'McDonalds': 'MCD',
         'IBM': 'IBM',
         'Pepsi': 'PEP',
-        'Cocal Cola': 'KO',
+        'Coca Cola': 'KO',
         'Intel': 'INTC',
         'AMD': 'AMD'
     }
