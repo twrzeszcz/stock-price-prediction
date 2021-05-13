@@ -59,7 +59,7 @@ def train(train_set, val_set):
     model.compile(loss="mse", optimizer="adam", metrics=['mse'])
 
     t1 = time.time()
-    model.fit(train_set, epochs=100, validation_data=val_set)
+    model.fit(train_set, epochs=50, validation_data=val_set)
     t2 = round(time.time() - t1, 2)
 
     del train_set, val_set
@@ -71,30 +71,39 @@ def train(train_set, val_set):
 
 
 def predict(scaler, model, df_close_scaled, df_close, num_steps):
+    df_close_scaled_len = len(df_close_scaled)
     for step in range(int(num_steps / 10)):
         pred = model.predict(np.expand_dims(df_close_scaled, axis=0))[:, -1, :]
         df_close_scaled = np.concatenate([df_close_scaled, pred.T], axis=0)
 
     if df_close.index[-1] == datetime.date.today():
-        df_pred = pd.DataFrame(scaler.inverse_transform(df_close_scaled[-num_steps:]), columns=['Close'],
+        df_next = pd.DataFrame(scaler.inverse_transform(df_close_scaled[-num_steps:]), columns=['Close'],
                                index=pd.date_range(datetime.date.today() + datetime.timedelta(days=1), freq='D', periods=num_steps))
     else:
-        df_pred = pd.DataFrame(scaler.inverse_transform(df_close_scaled[-num_steps:]), columns=['Close'],
+        df_next = pd.DataFrame(scaler.inverse_transform(df_close_scaled[-num_steps:]), columns=['Close'],
                                index=pd.date_range(datetime.date.today(), freq='D', periods=num_steps))
+    t1 = time.time()
+    pred = [model.predict(np.expand_dims(df_close_scaled[:i], axis=0))[:, -1, 0][0] for i in range(1, df_close_scaled_len)]
+    st.info('Prediction time: {}'.format(round(time.time() - t1, 2)) + 's')
+    df_pred = pd.DataFrame(scaler.inverse_transform(np.expand_dims(np.array(pred), axis=1)), index=df_close.index[:len(pred)])
+    df_pred.rename(columns={0: 'Original Predicted'}, inplace=True)
 
-    df_close_all = pd.concat([df_close, df_pred], axis=0)
+    df_close_all = pd.concat([df_close, df_next], axis=0)
     df_close_all.rename(columns={0: 'Original', 'Close': 'Predicted'}, inplace=True)
 
-    del pred, df_pred
+    del df_next, pred
 
-    return df_close_all
+    return df_close_all, df_pred
 
-def visualize(df_close_all):
+def visualize(df_close_all, df_pred):
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=df_close_all.index, y=df_close_all['Original'],
                              mode='lines', name='Original'))
     fig.add_trace(go.Scatter(x=df_close_all.index, y=df_close_all['Predicted'],
                              mode='lines+markers', name='Predicted'))
+    fig.add_trace(go.Scatter(x=df_pred.index, y=df_pred['Original Predicted'],
+                             mode='lines', name='Original Predicted'))
+
     fig.update_layout(title='Original data + predicted values', title_x=0.5, xaxis_title='Date', yaxis_title='Closing Price')
     st.write(fig)
 
@@ -143,10 +152,9 @@ def live_prediction():
         num_steps = st.sidebar.selectbox('Select how many time steps to predict', list(range(10, 101, 10)))
         if st.sidebar.button('Predict closing prices for the next {} days'.format(num_steps)):
             train_set, val_set, df_close_scaled, scaler = preprocess(df_close)
-
             model = train(train_set, val_set)
-            df_close_all = predict(scaler, model, df_close_scaled, df_close, num_steps)
-            visualize(df_close_all)
+            df_close_all, df_pred = predict(scaler, model, df_close_scaled, df_close, num_steps)
+            visualize(df_close_all, df_pred)
 
             del train_set, val_set, df_close_scaled, scaler, df_close_all, model
             gc.collect()
