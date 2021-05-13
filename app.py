@@ -16,6 +16,9 @@ st.set_option('deprecation.showPyplotGlobalUse', False)
 
 gc.enable()
 
+np.random.seed(120)
+tf.random.set_seed(120)
+
 
 def load_data(company):
     df = pdr.DataReader(company, 'yahoo')
@@ -140,6 +143,7 @@ def live_prediction():
         num_steps = st.sidebar.selectbox('Select how many time steps to predict', list(range(10, 101, 10)))
         if st.sidebar.button('Predict closing prices for the next {} days'.format(num_steps)):
             train_set, val_set, df_close_scaled, scaler = preprocess(df_close)
+
             model = train(train_set, val_set)
             df_close_all = predict(scaler, model, df_close_scaled, df_close, num_steps)
             visualize(df_close_all)
