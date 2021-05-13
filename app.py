@@ -58,6 +58,7 @@ def train(train_set, val_set):
     model.add(keras.layers.Conv1D(filters=10, kernel_size=1))
     model.compile(loss="mse", optimizer="adam", metrics=['mse'])
 
+    st.info('Training will take roughly 20 seconds')
     t1 = time.time()
     model.fit(train_set, epochs=50, validation_data=val_set)
     t2 = round(time.time() - t1, 2)
@@ -71,6 +72,7 @@ def train(train_set, val_set):
 
 
 def predict(scaler, model, df_close_scaled, df_close, num_steps):
+    st.info('Inference will take less than 60 seconds')
     df_close_scaled_len = len(df_close_scaled)
     for step in range(int(num_steps / 10)):
         pred = model.predict(np.expand_dims(df_close_scaled, axis=0))[:, -1, :]
