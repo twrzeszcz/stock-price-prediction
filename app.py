@@ -113,17 +113,19 @@ def main_section():
     st.title('Stock Price Prediction Project')
     background_im = cv2.imread('images/stock.jpeg')
     st.image(cv2.cvtColor(background_im, cv2.COLOR_BGR2RGB), use_column_width=True)
-    st.subheader('General info')
-    st.info('This app serves a purpose of predicting the next days stock prices for different companies chosen by the user.')
-    st.info('This is done in the Live Prediction section where the user specifies a company and then the data is '
-            'fetched from the https://finance.yahoo.com/.')
-    st.info('After preprocessing it is fed into the model which is trained in real time. User can choose for how many days prices should be predicted.'
-            ' We use here the simplified version of the Wavenet model shown in the jupyter notebook on the github.')
+    st.markdown('This app serves a purpose of predicting the next days stock prices for different companies chosen by the user. This is done in '
+                'the **Live Prediction** section where the user specifies a company and then the data is fetched from the '
+                'https://finance.yahoo.com/. After preprocessing it is fed into the model which is trained in real time. User can '
+                'choose for how many days prices should be predicted. We use here the simplified version of the *Wavenet* model shown in '
+                'the jupyter notebook on the github.')
+
     del background_im
     gc.collect()
 
 def live_prediction():
     st.title('Live Prediction')
+
+    st.markdown('')
 
     companies = {
         'Amazon': 'AMZN',
