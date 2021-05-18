@@ -1,1 +1,3 @@
-# stock-price-prediction
+# General Info 
+This project is about stock price prediction using different RNN and CNN models. Data preprocessing and training is done in the **stock_price_prediction** notebook. Then the 
+Streamlit app is build using the best model which is the simplified version of the Wavenet model. The app allows a user to choose a company for which stock data will be fetched. Then the model is trained in real time for 50 epochs. User can also specify how many future steps the model should predict. Inference is also done on the entire sequence to check how well the model was trained. Training takes roughly 20 seconds and inference less than 60 seconds. The app is deployed here [Stock Prediction App](https://share.streamlit.io/twrzeszcz/stock-price-prediction/main/app.py).
