@@ -59,8 +59,8 @@ oauthlib==3.1.0
 opencv-python-headless==4.5.2.52
 opt-einsum==3.3.0
 packaging==20.9
-pandas==1.2.4
-pandas-datareader==0.9.0
+pandas==1.3.4
+pandas-datareader==0.10.0
 pandocfilters==1.4.3
 parso==0.8.2
 pickleshare==0.7.5
